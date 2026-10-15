@@ -53,3 +53,21 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# bootshims4magisk: build output
+/build/
+
+# bootstrap venv (ziglang cross toolchain)
+/.venv/
+/.venv*/
+
+# generated private key material -- never commit
+/keys/
+*.pem
+*.key
+*.pk8
+*.jks
+*.keystore
+
+# generated test binaries land in build/; keep fixture images tracked
+!/tests/fixtures/**

@@ -1,0 +1,47 @@
+/* ================================================================
+ * link.ld.in - bare-metal link script for the second-stage shim.
+ *
+ * @BASE@ and @LIMIT@ are substituted by the Makefile from
+ * SHIM_BASE / SHIM_LIMIT and MUST match the `second_addr` of the
+ * target boot image header.
+ * ================================================================ */
+OUTPUT_ARCH(aarch64)
+ENTRY(_start)
+
+MEMORY {
+    RAM (rwx) : ORIGIN = @BASE@, LENGTH = @LIMIT@
+}
+
+SECTIONS {
+    . = ORIGIN(RAM);
+
+    .text : ALIGN(16) {
+        KEEP(*(.text.boot))
+        *(.text .text.*)
+        *(.rodata .rodata.*)
+        . = ALIGN(16);
+    } > RAM
+
+    .data : ALIGN(16) {
+        *(.data .data.*)
+        . = ALIGN(16);
+    } > RAM
+
+    .bss (NOLOAD) : ALIGN(16) {
+        __bss_start = .;
+        *(COMMON)
+        *(.bss .bss.*)
+        . = ALIGN(16);
+        __bss_end = .;
+    } > RAM
+
+    __bs_image_end = .;
+    __bs_stack_top = ORIGIN(RAM) + LENGTH(RAM);
+
+    /DISCARD/ : {
+        *(.comment)
+        *(.note .note.*)
+        *(.eh_frame .eh_frame_hdr)
+        *(.ARM.attributes)
+    }
+}
